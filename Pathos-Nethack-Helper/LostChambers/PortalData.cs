@@ -99,15 +99,25 @@ namespace Pathos_Nethack_Helper.LostChambers
             return results;
         }
 
+        /*
+         * The rotation questions are based on the original map. The rotation is clockwise, so the first
+         * value in the string array indicates a 0 degrees rotation, the second is 90 degrees, etc. The
+         * questions are based on the original map data recorded manually. The first answer is the value
+         * matching that rotation data. The other answers represent a rotation of that "default" case.
+         */
         private void InitRotationQuestions()
         {
             _rotationQuestions = new Dictionary<LostChamber.RoomName, RotationQuestion>();
             RotationQuestion entranceQuestion = new RotationQuestion(LostChamber.RoomName.Entrance, 
-                "Of the three fake walls, in which direction is the mind flayer hidden?",
-                new string[]{"North", "East", "South", "West"});
+                // The entrance room has four fake walls. Two have mindflayers, and two have open/empty chests.
+                // The Mindflayers are accross from each other, and the chests are across from each other.
+                // The chest on one wall is centered, and the other is offset. This relative orientation is consistent.
+                "Of the four fake walls, in which direction is the centered chest hidden?",
+                new string[]{"East", "South", "West", "North"});
             _rotationQuestions.Add(entranceQuestion.RoomForQuestion, entranceQuestion);
             
             RotationQuestion waterQuestion = new RotationQuestion(LostChamber.RoomName.Water,
+                // The water room has a single fountain out of sight from the entrance portal and centered on one wall.
                 "Which direction is the fountain?",
                 new string[]{"West", "North", "East", "South"});
             _rotationQuestions.Add(waterQuestion.RoomForQuestion, waterQuestion);
