@@ -99,6 +99,12 @@ namespace Pathos_Nethack_Helper.LostChambers
             return results;
         }
 
+        /*
+         * The rotation questions are based on the original map. The rotation is clockwise, so the first
+         * value in the string array indicates a 0 degrees rotation, the second is 90 degrees, etc. The
+         * questions are based on the original map data recorded manually. The first answer is the value
+         * matching that rotation data. The other answers represent a rotation of that "default" case.
+         */
         private void InitRotationQuestions()
         {
             _rotationQuestions = new Dictionary<LostChamber.RoomName, RotationQuestion>();
