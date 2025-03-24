@@ -106,8 +106,8 @@ namespace Pathos_Nethack_Helper.LostChambers
                 // The entrance room has four fake walls. Two have mindflayers, and two have open/empty chests.
                 // The Mindflayers are accross from each other, and the chests are across from each other.
                 // The chest on one wall is centered, and the other is offset. This relative orientation is consistent.
-                "Of the four fake walls, two of them have empty chests. In which direction is the centered chest?",
-                new string[]{"North", "East", "South", "West"});
+                "Of the four fake walls, in which direction is the centered chest hidden?",
+                new string[]{"East", "South", "West", "North"});
             _rotationQuestions.Add(entranceQuestion.RoomForQuestion, entranceQuestion);
             
             RotationQuestion waterQuestion = new RotationQuestion(LostChamber.RoomName.Water,
