@@ -4,75 +4,36 @@ namespace Pathos_Nethack_Helper.LostChambers
 {
     public class LostChamber
     {
-        RoomName roomName;
+        public RoomName CurrentRoomName { get; }
         // Each room can rotate. This tracks clockwise 90 deg intervals
-        private int rotationFromOriginalMap;
+        public int RotationFromOriginalMap { get; set; } = -99;
 
-        private LostChamber northWest = null;
-        private LostChamber southEast = null;
-        private LostChamber northEast = null;
-        private LostChamber southWest = null;
-        private LostChamber center = null;
-        
-        private bool orientationDetermined = false;
-        private String orientationQuestion = null;
+        public RoomName NorthWest { get; set; }
+        public RoomName SouthEast { get; set; }
+        public RoomName NorthEast { get; set; }
+        public RoomName SouthWest { get; set; }
+        public RoomName Center { get; set; }
+        public RotationQuestion OrientationQuestion { get; set; }
 
-        public LostChamber(RoomName roomName, LostChamber northWest, LostChamber southEast, LostChamber northEast,
-            LostChamber southWest, LostChamber center)
+        public LostChamber(RoomName currentRoomName)
         {
-            this.roomName = roomName;
-            this.northWest = northWest ?? throw new ArgumentNullException(nameof(northWest));
-            this.southEast = southEast ?? throw new ArgumentNullException(nameof(southEast));
-            this.northEast = northEast ?? throw new ArgumentNullException(nameof(northEast));
-            this.southWest = southWest ?? throw new ArgumentNullException(nameof(southWest));
-            this.center = center ?? throw new ArgumentNullException(nameof(center));
+            CurrentRoomName = currentRoomName;
         }
 
-        public LostChamber(RoomName roomName)
+        public LostChamber(RoomName currentRoomName, RoomName northWest, RoomName southEast, RoomName northEast,
+            RoomName southWest, RoomName center)
         {
-            this.roomName = roomName;
+            CurrentRoomName = currentRoomName;
+            NorthWest = northWest;
+            SouthEast = southEast;
+            NorthEast = northEast;
+            SouthWest = southWest;
+            Center = center;
         }
 
-        public RoomName GetRoomName
+        public bool OrientationIsDetermined()
         {
-            get => roomName;
-            set => roomName = value;
-        }
-
-        public int GetRotationFromOriginalMap
-        {
-            get => rotationFromOriginalMap;
-            set => rotationFromOriginalMap = value;
-        }
-
-        public LostChamber GetNorthWest
-        {
-            get => northWest;
-            set => northWest = value;
-        }
-
-        public LostChamber GetSouthEast
-        {
-            get => southEast;
-            set => southEast = value;
-        }
-
-        public LostChamber GetNorthEast
-        {
-            get => northEast;
-            set => northEast = value;
-        }
-
-        public LostChamber GetSouthWest
-        {
-            get => southWest;
-            set => southWest = value;
-        }
-
-        public LostChamber GetCenter
-        {
-            get => center;
-            set => center = value;
+            return OrientationQuestion != null && RotationFromOriginalMap != -99;
         }
 
         /**
@@ -100,7 +61,8 @@ namespace Pathos_Nethack_Helper.LostChambers
             Yeoman,
             Labyrinth,
             Nurses,
-            Spiders
+            Spiders,
+            Unknown
         }
     }
 }

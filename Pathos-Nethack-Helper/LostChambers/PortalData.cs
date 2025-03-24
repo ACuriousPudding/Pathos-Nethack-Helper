@@ -5,6 +5,10 @@ namespace Pathos_Nethack_Helper.LostChambers
     public class PortalData
     {
         private static Dictionary<LostChamber.RoomName, RotationQuestion> _rotationQuestions = null;
+
+        private static Dictionary<LostChamber.RoomName, LostChamber> RoomsByName { get; } =
+            new Dictionary<LostChamber.RoomName, LostChamber>();
+        
         private static Dictionary<LostChamber.RoomName, LostChamber.RoomName[]> _originalPortalData = new Dictionary<LostChamber.RoomName, LostChamber.RoomName[]>()
         {
             { LostChamber.RoomName.Mindflayers, new [] { LostChamber.RoomName.Entrance } },
@@ -35,7 +39,7 @@ namespace Pathos_Nethack_Helper.LostChambers
         {
             if (_rotationQuestions == null)
             {
-                initRotationQuestions();
+                InitRotationQuestions();
             }
             return _rotationQuestions;
         }
@@ -44,7 +48,7 @@ namespace Pathos_Nethack_Helper.LostChambers
         {
             if (_rotationQuestions == null)
             {
-                initRotationQuestions();
+                InitRotationQuestions();
             }
 
             if (_rotationQuestions.ContainsKey(roomName))
@@ -58,44 +62,75 @@ namespace Pathos_Nethack_Helper.LostChambers
         {
             return _rotationQuestions.ContainsKey(roomName);
         }
-        
-        public Dictionary<LostChamber.RoomName, LostChamber> FillPortalMap(Dictionary<LostChamber.RoomName, LostChamber.RoomName[]> portalData)
+
+        public LostChamber GetChamber(LostChamber.RoomName roomName)
         {
-            
+            if (_chambers == null || _chambers.Count == 0)
+            {
+                CreatePortalMap();
+            }
+            return _chambers[roomName];
         }
 
-        private void initRotationQuestions()
+        public Dictionary<LostChamber.RoomName, LostChamber> CreatePortalMap()
+        {
+            return CreatePortalMap(_originalPortalData);
+        }
+
+        public Dictionary<LostChamber.RoomName, LostChamber> CreatePortalMap(Dictionary<LostChamber.RoomName, LostChamber.RoomName[]> inputPortalData)
+        {
+            Dictionary<LostChamber.RoomName, LostChamber.RoomName[]> portalData = inputPortalData == null ? _originalPortalData : inputPortalData;
+            Dictionary<LostChamber.RoomName, LostChamber> results = new Dictionary<LostChamber.RoomName, LostChamber>();
+            
+            var keyEnum = portalData.Keys.GetEnumerator();
+            while (keyEnum.MoveNext())
+            {
+                var thisChamber = new LostChamber(keyEnum.Current);
+                var thisChamberData = portalData[keyEnum.Current];
+                thisChamber.Center = thisChamberData[0];
+                thisChamber.NorthWest = thisChamberData[1];
+                thisChamber.NorthEast = thisChamberData[2];
+                thisChamber.SouthWest = thisChamberData[3];
+                thisChamber.SouthEast = thisChamberData[4];
+                thisChamber.OrientationQuestion = getRotationQuestion(thisChamber.CurrentRoomName);
+                results.Add(keyEnum.Current, thisChamber);
+            }
+
+            return results;
+        }
+
+        private void InitRotationQuestions()
         {
             _rotationQuestions = new Dictionary<LostChamber.RoomName, RotationQuestion>();
             RotationQuestion entranceQuestion = new RotationQuestion(LostChamber.RoomName.Entrance, 
                 "Of the three fake walls, in which direction is the mind flayer hidden?",
                 new string[]{"North", "East", "South", "West"});
-            _rotationQuestions.Add(entranceQuestion.RoomName, entranceQuestion);
+            _rotationQuestions.Add(entranceQuestion.RoomForQuestion, entranceQuestion);
             
             RotationQuestion waterQuestion = new RotationQuestion(LostChamber.RoomName.Water,
                 "Which direction is the fountain?",
                 new string[]{"West", "North", "East", "South"});
-            _rotationQuestions.Add(waterQuestion.RoomName, waterQuestion);
+            _rotationQuestions.Add(waterQuestion.RoomForQuestion, waterQuestion);
             
             RotationQuestion zooQuestion = new RotationQuestion(LostChamber.RoomName.Zoo,
                 "Of the four biomes in this room, which direction is the grass?",
                 new string[]{"North-East", "South-East", "South-West", "North-West"});
-            _rotationQuestions.Add(zooQuestion.RoomName, zooQuestion);
+            _rotationQuestions.Add(zooQuestion.RoomForQuestion, zooQuestion);
 
             RotationQuestion graveyardQuestion = new RotationQuestion(LostChamber.RoomName.Graveyard,
                 "There are two graves touching the blue portal that can be used to make a line to a nearby wall segment. Which direction on that line has a wall segment with two graves touching it?",
                 new string[]{"South", "West", "North", "East"});
-            _rotationQuestions.Add(graveyardQuestion.RoomName, graveyardQuestion);
+            _rotationQuestions.Add(graveyardQuestion.RoomForQuestion, graveyardQuestion);
             
             RotationQuestion labyrinthQuestion = new RotationQuestion(LostChamber.RoomName.Labyrinth,
                 "There are four paths from the blue portal. One of them is only one square. Which direction is that one-square path?",
                 new string[]{"West", "North", "East", "South"});
-            _rotationQuestions.Add(labyrinthQuestion.RoomName, labyrinthQuestion);
+            _rotationQuestions.Add(labyrinthQuestion.RoomForQuestion, labyrinthQuestion);
             
             RotationQuestion groveQuestion = new RotationQuestion(LostChamber.RoomName.Grove,
                 "Which direction from the blue portal has a tree within two spaces?",
                 new string[]{"East", "South", "West", "North"});
-            _rotationQuestions.Add(groveQuestion.RoomName, groveQuestion);
+            _rotationQuestions.Add(groveQuestion.RoomForQuestion, groveQuestion);
         }
             
         
