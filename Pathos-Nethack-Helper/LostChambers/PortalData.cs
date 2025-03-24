@@ -103,11 +103,15 @@ namespace Pathos_Nethack_Helper.LostChambers
         {
             _rotationQuestions = new Dictionary<LostChamber.RoomName, RotationQuestion>();
             RotationQuestion entranceQuestion = new RotationQuestion(LostChamber.RoomName.Entrance, 
-                "Of the three fake walls, in which direction is the mind flayer hidden?",
+                // The entrance room has four fake walls. Two have mindflayers, and two have open/empty chests.
+                // The Mindflayers are accross from each other, and the chests are across from each other.
+                // The chest on one wall is centered, and the other is offset. This relative orientation is consistent.
+                "Of the four fake walls, two of them have empty chests. In which direction is the centered chest?",
                 new string[]{"North", "East", "South", "West"});
             _rotationQuestions.Add(entranceQuestion.RoomForQuestion, entranceQuestion);
             
             RotationQuestion waterQuestion = new RotationQuestion(LostChamber.RoomName.Water,
+                // The water room has a single fountain out of sight from the entrance portal and centered on one wall.
                 "Which direction is the fountain?",
                 new string[]{"West", "North", "East", "South"});
             _rotationQuestions.Add(waterQuestion.RoomForQuestion, waterQuestion);
