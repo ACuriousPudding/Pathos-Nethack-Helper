@@ -141,6 +141,14 @@ namespace Pathos_Nethack_Helper.LostChambers
                 "Which direction from the blue portal has a tree within two spaces?",
                 new string[]{"East", "South", "West", "North"});
             _rotationQuestions.Add(groveQuestion.RoomForQuestion, groveQuestion);
+
+            // The spawn orthogonally to the blue portal, and spawn flanking a corner (i.e. North and East, 
+            // or West and North). The Mind Flayer portal is the one opposite that corner. So if we know
+            // which two directions the giants approach from, we know which corner they are flanking, and
+            // thus which portal is for the Mind Flayers.
+            RotationQuestion lavaQuestion = new RotationQuestion(LostChamber.RoomName.Lava,
+                "Which two directions from the blue portal are the fire giants?",
+                new string[]{"South-West", "North-West", "North-East", "South-East"});
         }
             
         
