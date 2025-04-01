@@ -133,7 +133,6 @@ class Tokenizer:
         
         return tokens
     
-
     def parse_tokens(self):
         """
         Parses the tokenized Quest file and returns a structured representation of the tokens.
@@ -257,5 +256,5 @@ if __name__ == "__main__":
     # print(chamberQuest.get_character('@[000283]'))
 
     # Find all characters of type "mind flayer"
-    for k in chamberQuest.find_character_by_type('[mind flayer]'):
-        print(k)
+    # for k in chamberQuest.find_character_by_type('[mind flayer]'):
+    #     print(k)
