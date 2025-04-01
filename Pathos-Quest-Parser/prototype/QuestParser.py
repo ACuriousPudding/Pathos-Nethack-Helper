@@ -227,6 +227,9 @@ class Quest:
                 results.append(character)
         return results
 
+    def render_map(self, map_name):
+        # TODO: Implement a method to render the map using the data in the maps dictionary
+        pass
 
 
 
