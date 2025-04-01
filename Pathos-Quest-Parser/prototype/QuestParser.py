@@ -139,8 +139,9 @@ class Tokenizer:
         Parses the tokenized Quest file and returns a structured representation of the tokens.
         :return: A structured representation of the tokens as a Quest object.
         """
-        # Initialize Quest object
+        # Initialize Quest object, and set the filepath in the metadata
         quest = Quest()
+        quest.metadata['filepath'] = self.filepath
 
         # Iterate over token list, breaking it into groups delimited by blank lines (empty lists)
         token_groups = []
@@ -160,23 +161,21 @@ class Tokenizer:
         
         # Iterate through groups, and assign them to the appropriate data structure
         for group in token_groups:
-            # Debug output
-            print(f'Group Header: {group[0]}')
-
             # Check the first token of the first list of tokens to determine group type
             first_token = group[0][0]
-            if first_token == 'site':
-                # Handle the site group
+            if first_token == 'quest' or first_token == '\ufeffquest':
+                # The title is the second token in this group
+                quest.metadata['title'] = group[0][1]
+            elif first_token == 'site':
                 quest.sites.append(group)
             elif first_token == 'map':
-                # Handle the map group
                 quest.maps[group[0][1]] = group
             elif first_token == 'character':
-                # Handle the character group
                 for character in group:
                     # The player start position is listed in the Character block, so we filter for it here
                     if character[0] == 'start':
                         quest.metadata['start'] = character
+                        continue
                     # The character ID is the second token in the list, and we keep the whole list as the value
                     quest.characters[character[1]] = character
             # Fallthrough for any unknown token types
@@ -206,7 +205,27 @@ class Quest:
         # Characters are stored using the @code ID as their key. These are refered to throughout the file, and
         # are defined as a single large block near the bottom.
         self.characters = dict()
+    
+    def get_character(self, id):
+        """
+        Returns the character with the given ID.
+        :param id: The ID of the character to retrieve.
+        :return: The character object or None if not found.
+        """
+        return self.characters[id] if id in self.characters else None
 
+    def find_character_by_type(self, type):
+        """
+        Returns a list of characters of the given type.
+        :param type: The type of character to find.
+        :return: A list of characters of the given type.
+        """
+        results = []
+        # Field 3 is the name of the monster (the "type")
+        for id, character in self.characters.items():
+            if character[3] == type:
+                results.append(character)
+        return results
 
 
 
@@ -219,15 +238,21 @@ if __name__ == "__main__":
 
     chamberQuest = tokenizer.parse()
 
-    for k in chamberQuest.maps.keys():
-        print(f"Map: {k}")
-    print()
+    # for k in chamberQuest.maps.keys():
+    #     print(f"Map: {k}")
+    # print()
 
-    for k in chamberQuest.characters.keys():
-        print(f"Character: {k}")
-    print()
+    # for k in chamberQuest.characters.keys():
+    #     print(f"Character: {k}")
+    # print()
 
-    for k in chamberQuest.sites:
-        print(f"Site: {k}")
-    print()
-        
+    # for k in chamberQuest.sites:
+    #     print(f"Site: {k}")
+    # print()
+    
+    # character @[000283] [neuter] [large pile of killer coins] noclass square map [Chamber 18] (05,09);
+    # print(chamberQuest.get_character('@[000283]'))
+
+    # Find all characters of type "mind flayer"
+    for k in chamberQuest.find_character_by_type('[mind flayer]'):
+        print(k)
