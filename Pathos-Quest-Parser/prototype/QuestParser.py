@@ -1,9 +1,14 @@
 import re
 import os
 
-class QuestParser:
+class Tokenizer:
+    
+
     def __init__(self):
-        pass
+        self.filepath = ''
+        self.tokenized_data = []
+        self.parsed_data = None
+        print("Tokenizer initialized. Set the filepath with set_filepath() method before calling parse().")
 
     def set_filepath(self, filepath):
         """
@@ -29,6 +34,10 @@ class QuestParser:
             print("Filepath not set. Please set the filepath before getting it.")
             return None
     
+    def get_tokenized_data(self):
+        # This is a method for debugging purposes
+        return self.tokenized_data
+
     def get_parsed_data(self):
         """
         Returns the parsed data from the Quest file.
@@ -40,17 +49,13 @@ class QuestParser:
             print("Parsed data not available. Run parse() method first.")
             return None
     
-    def parse(self, filepath):
-        print("parse() not implemented.")
-        pass
+    def parse(self):
+        # Parse the file, breaking into a tokenized list
+        self.parse_file()
+        # Parse the tokenized list, grouping related token sets and creating structures
+        quest = self.parse_tokens()
 
-    def parse_tokens(self):
-        """
-        Parses the tokenized Quest file and returns a structured representation of the tokens.
-        :return: A structured representation of the tokens. TODO: define structure
-        """
-        print("parse_tokens() not implemented.")
-        pass
+        return quest
 
     def parse_file(self):
         """
@@ -58,7 +63,10 @@ class QuestParser:
         :param filepath: The input file to parse.
         :return: A list of lists of tokens.
         """
-        self.parsed_data = []
+        # Erase the previous tokenized data
+        if self.tokenized_data:
+            print("Warning: Previous tokenized data will be erased.")
+        self.tokenized_data = []
         try:
             with open(self.filepath, 'r') as file:
                 lines = file.readlines()
@@ -70,7 +78,7 @@ class QuestParser:
                         continue
                     else:
                         # Append the tokens to the parsed_data list
-                        self.parsed_data.append(tokens)
+                        self.tokenized_data.append(tokens)
 
         except FileNotFoundError:
             print(f"Error: The file {self.filepath} was not found. Set filepath before calling parse.")
@@ -126,16 +134,100 @@ class QuestParser:
         return tokens
     
 
+    def parse_tokens(self):
+        """
+        Parses the tokenized Quest file and returns a structured representation of the tokens.
+        :return: A structured representation of the tokens as a Quest object.
+        """
+        # Initialize Quest object
+        quest = Quest()
+
+        # Iterate over token list, breaking it into groups delimited by blank lines (empty lists)
+        token_groups = []
+        current_group = []
+        for tokens in self.tokenized_data:
+            # Either an empty list or a None type indicate a blank line between groups
+            # TODO: Handle the "start" token line, which doesn't have a blank line before it
+            if not tokens: 
+                token_groups.append(current_group)
+                current_group = []
+                continue
+            else:
+                current_group.append(tokens)
+        # Append the last group if it exists
+        if current_group:
+            token_groups.append(current_group)
+        
+        # Iterate through groups, and assign them to the appropriate data structure
+        for group in token_groups:
+            # Debug output
+            print(f'Group Header: {group[0]}')
+
+            # Check the first token of the first list of tokens to determine group type
+            first_token = group[0][0]
+            if first_token == 'site':
+                # Handle the site group
+                quest.sites.append(group)
+            elif first_token == 'map':
+                # Handle the map group
+                quest.maps[group[0][1]] = group
+            elif first_token == 'character':
+                # Handle the character group
+                for character in group:
+                    # The player start position is listed in the Character block, so we filter for it here
+                    if character[0] == 'start':
+                        quest.metadata['start'] = character
+                    # The character ID is the second token in the list, and we keep the whole list as the value
+                    quest.characters[character[1]] = character
+            # Fallthrough for any unknown token types
+            else:
+                print(f"Warning: Unrecognized token type '{first_token}' in group. Skipping this group.")
+                continue
+        
+        # print(f"Parsed data structure:{quest.maps['[Base of The Chamber]']}")
+        return quest
+    
+"""
+Data Structures to represent the parsed data.
+"""
+class Quest:
+    """
+    Represents a Quest file.
+    """
+    def __init__(self):
+        # Metadata about the Quest file, such as title, filepath, 
+        self.metadata = dict()
+        # The "site" group contains the list of maps, as well as the name of the site
+        self.sites = []
+        # Maps are stored with their name as the key, and a dictionary value using the coordinates of cells
+        # as keys and an ordered list of contents of the cell as values
+        # The order of the contents list indicates stacking order in the cell from ground up.
+        self.maps = dict()
+        # Characters are stored using the @code ID as their key. These are refered to throughout the file, and
+        # are defined as a single large block near the bottom.
+        self.characters = dict()
+
+
+
+
 
 if __name__ == "__main__":
     # Example usage
-    qp = QuestParser()
-    qp.set_filepath("Chambers.Quest")
-    filepath = qp.get_filepath()
+    tokenizer = Tokenizer()
+    tokenizer.set_filepath("Chambers.Quest")
+    filepath = tokenizer.get_filepath()
 
-    qp.parse(filepath)
+    chamberQuest = tokenizer.parse()
 
-    for line in qp.get_parsed_data():
-        print(f"Parsed line: {line}")
+    for k in chamberQuest.maps.keys():
+        print(f"Map: {k}")
+    print()
+
+    for k in chamberQuest.characters.keys():
+        print(f"Character: {k}")
+    print()
+
+    for k in chamberQuest.sites:
+        print(f"Site: {k}")
+    print()
         
-    
