@@ -10,3 +10,4 @@ string testFilePath = "./prototype/Chambers.Quest";
 
 Console.WriteLine($"Creating Tokenizer with filepath {testFilePath}");
 Tokenizer tokenizer = new Tokenizer(testFilePath);
+List<List<string>> tokenizedLines = tokenizer.ParseFile();

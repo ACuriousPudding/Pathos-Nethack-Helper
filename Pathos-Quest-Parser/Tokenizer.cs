@@ -24,7 +24,7 @@ namespace Pathos_Nethack_Helper.PathosQuestParser
             // Create TokenGroups from the tokenized lines
         }
 
-        private List<List<string>> ParseFile()
+        public List<List<string>> ParseFile()
         {
             Console.WriteLine("Tokenizer.ParseFile() called");
             // Initialize a nested list of token lists. Each list models a line of the .Quest file.
@@ -33,7 +33,10 @@ namespace Pathos_Nethack_Helper.PathosQuestParser
             foreach (string line in File.ReadLines(this.FilePath))
             {
                 Console.WriteLine($"Reading line: {line}");
-                Console.WriteLine($"Parsed Line: {this.ParseLine(line)}");
+                List<string> tokenizedLine = this.ParseLine(line);
+                Console.WriteLine($"Number of Tokens found: {tokenizedLine.Count}");
+                // Add the tokenized line to the list. It's fine if the list is empty; that's used as a flag later.
+                tokenizedLines.Add(tokenizedLine);
             }
 
             return tokenizedLines;
@@ -48,6 +51,7 @@ namespace Pathos_Nethack_Helper.PathosQuestParser
             bool inBrackets = false;
             foreach (char c in line)
             {
+                // Case: Open Brackets
                 // When the character is an opening bracket, we want to escape any whitespace inside it
                 if (c == '[' && !inBrackets)
                 {
@@ -63,14 +67,18 @@ namespace Pathos_Nethack_Helper.PathosQuestParser
                     }
                     continue;
                 }
+                // Case: Close Brackets
                 if (c == ']' && inBrackets)
                 {
+                    inBrackets = false;
                     // When the character is a closing bracket AND we're inside brackets, finalize the token
                     currentToken += c.ToString();
                     tokens.Add(currentToken);
                     currentToken = "";
                     continue;
                 }
+                // Case: Whitespace or Semicolon delimiter
+                // TODO: determine what to do if the semi-colon isn't at the end of the line and is used inside a line as a legit character
                 if ((c == ' ' || c == ';') && !inBrackets)
                 {
                     // If we encounter a space or semicolon and we're not in brackets, finalize the current token
